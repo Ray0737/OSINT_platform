@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSINT GOTHAM</title>
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ─── HEADER ──────────────────────────────────────────────────────────── -->
+  <header id="header">
+    <div class="hd-title-block">
+      <span class="logo">OSINT Platform</span>
+      <span class="hd-sub">GLOBAL MILITARY INTELLIGENCE</span>
+    </div>
+    <span class="hd-tz-sep"></span>
+    <div id="tz-cluster">
+      <div class="tz-item">
+        <div class="tz-label">DE</div>
+        <div class="tz-time" id="tz-de">--:--:--</div>
+      </div>
+      <div class="tz-div"></div>
+      <div class="tz-item">
+        <div class="tz-label">DC</div>
+        <div class="tz-time" id="tz-dc">--:--:--</div>
+      </div>
+      <div class="tz-div"></div>
+      <div class="tz-item">
+        <div class="tz-label">LA</div>
+        <div class="tz-time" id="tz-la">--:--:--</div>
+      </div>
+      <div class="tz-div"></div>
+      <div class="tz-item tz-zulu">
+        <div class="tz-label">ZULU</div>
+        <div class="tz-time" id="tz-zulu">--:--:--</div>
+      </div>
+      <div class="tz-div"></div>
+      <div class="tz-item">
+        <div class="tz-label">JP</div>
+        <div class="tz-time" id="tz-jp">--:--:--</div>
+      </div>
+      <div class="tz-div"></div>
+      <div class="tz-item">
+        <div class="tz-label">CN</div>
+        <div class="tz-time" id="tz-cn">--:--:--</div>
+      </div>
+    </div>
+    <!-- hidden elements kept for JS coord tracking -->
+    <span id="cursor-lat" style="display:none">0</span>
+    <span id="cursor-lng" style="display:none">0</span>
+  </header>
+
+  <!-- ─── WORKSPACE ────────────────────────────────────────────────────────── -->
+  <div id="workspace">
+
+    <!-- LEFT FAB SIDEBAR -->
+    <div id="fab">
+
+      <!-- LAYERS -->
+      <div class="fab-group">
+        <div class="fab-label">VIEW</div>
+        <button class="fab-btn" data-tile="satellite" title="Satellite">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="1" y="1" width="12" height="12" />
+            <line x1="1" y1="5" x2="13" y2="5" />
+            <line x1="1" y1="9" x2="13" y2="9" />
+            <line x1="5" y1="1" x2="5" y2="13" />
+            <line x1="9" y1="1" x2="9" y2="13" />
+          </svg>
+        </button>
+        <button class="fab-btn" data-tile="street" title="Street">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M2 13 L7 1 L12 13" />
+            <line x1="4" y1="8" x2="10" y2="8" />
+          </svg>
+        </button>
+        <button class="fab-btn" data-tile="dark" title="Dark">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <circle cx="7" cy="7" r="5" />
+            <path d="M7 2 A5 5 0 0 0 7 12" fill="currentColor" stroke="none" opacity="0.4" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="fab-divider"></div>
+
+      <!-- LAYER TOGGLES -->
+      <div class="fab-group">
+        <div class="fab-label">LYR</div>
+        <button class="fab-btn active" id="btn-grid" title="Coordinate Grid">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="0.8">
+            <line x1="0" y1="4.67" x2="14" y2="4.67" />
+            <line x1="0" y1="9.33" x2="14" y2="9.33" />
+            <line x1="4.67" y1="0" x2="4.67" y2="14" />
+            <line x1="9.33" y1="0" x2="9.33" y2="14" />
+            <rect x="0.5" y="0.5" width="13" height="13" />
+          </svg>
+        </button>
+        <button class="fab-btn active" id="btn-silos" title="Toggle Silos">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="0.5" y="0.5" width="9" height="9" transform="rotate(45 5 5)" />
+          </svg>
+        </button>
+        <button class="fab-btn active" id="btn-bases" title="Toggle Bases">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="0.5" y="0.5" width="9" height="9" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="fab-divider"></div>
+
+      <!-- DRAW TOOLS -->
+      <div class="fab-group">
+        <div class="fab-label">DRAW</div>
+        <button class="fab-btn" data-tool="draw-line" title="Line">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <line x1="2" y1="12" x2="12" y2="2" />
+            <circle cx="2" cy="12" r="1.5" fill="currentColor" />
+            <circle cx="12" cy="2" r="1.5" fill="currentColor" />
+          </svg>
+        </button>
+        <button class="fab-btn" data-tool="draw-circle" title="Circle">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <circle cx="7" cy="7" r="5" />
+            <line x1="7" y1="7" x2="12" y2="7" />
+          </svg>
+        </button>
+        <button class="fab-btn" data-tool="draw-rect" title="Rectangle">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="3" width="10" height="8" />
+          </svg>
+        </button>
+        <button class="fab-btn" data-tool="draw-polygon" title="Polygon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <polygon points="7,1 13,5 11,12 3,12 1,5" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="fab-divider"></div>
+
+      <!-- MEASURE -->
+      <div class="fab-group">
+        <div class="fab-label">MEAS</div>
+        <button class="fab-btn" data-tool="measure-dist" title="Measure Distance">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <line x1="2" y1="12" x2="12" y2="2" />
+            <line x1="2" y1="9" x2="2" y2="12" />
+            <line x1="5" y1="12" x2="2" y2="12" />
+            <line x1="9" y1="2" x2="12" y2="2" />
+            <line x1="12" y1="2" x2="12" y2="5" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="fab-divider"></div>
+
+      <!-- ADD -->
+      <div class="fab-group">
+        <div class="fab-label">ADD</div>
+        <button class="fab-btn" data-tool="add-point" title="Add Point">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <circle cx="7" cy="7" r="4" />
+            <line x1="7" y1="3" x2="7" y2="11" />
+            <line x1="3" y1="7" x2="11" y2="7" />
+          </svg>
+        </button>
+        <button class="fab-btn" data-tool="add-stamp" title="Add Stamp">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="1" y="1" width="12" height="12" />
+            <line x1="1" y1="1" x2="13" y2="13" />
+            <line x1="13" y1="1" x2="1" y2="13" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="fab-divider"></div>
+
+      <!-- INTELLIGENCE -->
+      <div class="fab-group">
+        <div class="fab-label">INTEL</div>
+        <button class="fab-btn" id="btn-personnel" title="Personnel Tracking" onclick="openPersModal()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <circle cx="7" cy="5.5" r="3" />
+            <path d="M1.5 13.5 c0-4.5 11-4.5 11 0" />
+          </svg>
+        </button>
+      </div>
+
+    </div><!-- /fab -->
+
+    <!-- MAP + RULER OVERLAY -->
+    <div id="map-wrapper">
+      <!-- Top coordinate ruler -->
+      <div class="map-ruler" id="map-ruler-top"></div>
+      <div id="map"></div>
+      <!-- Bottom coordinate ruler -->
+      <div class="map-ruler map-ruler-bot" id="map-ruler-bot"></div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div id="right-panel">
+
+      <!-- Cursor section -->
+      <div class="rp-section">
+        <div class="rp-title">CURSOR</div>
+        <div class="rp-row"><span class="rp-key">LAT</span><span class="rp-val" id="rp-lat">—</span></div>
+        <div class="rp-row"><span class="rp-key">LNG</span><span class="rp-val" id="rp-lng">—</span></div>
+        <div class="rp-row"><span class="rp-key">ZOOM</span><span class="rp-val purple" id="rp-zoom">5</span></div>
+      </div>
+
+      <!-- Selected feature -->
+      <div class="rp-section" id="selected-info">
+        <div class="rp-title">SELECTED</div>
+        <div class="sel-name" id="sel-name">—</div>
+        <div class="sel-type" id="sel-type">—</div>
+        <div class="rp-row"><span class="rp-key">LAT</span><span class="rp-val" id="sel-lat">—</span></div>
+        <div class="rp-row"><span class="rp-key">LNG</span><span class="rp-val" id="sel-lng">—</span></div>
+        <div class="rp-row"><span class="rp-key">GRID</span><span class="rp-val purple" id="sel-mgrs">—</span></div>
+      </div>
+
+      <!-- Personnel Subject -->
+      <div class="rp-section" id="rp-subject" style="display:none">
+        <div class="rp-sub-title-row">
+          <div class="rp-title" style="margin-bottom:0">SUBJECT</div>
+          <button class="rp-sub-dismiss" onclick="showSubjectInSidebar(null)" title="Stop watching">×</button>
+        </div>
+        <div class="rp-sub-hd">
+          <div id="rp-sub-photo" class="rp-sub-photo"></div>
+          <div id="rp-sub-name" class="rp-sub-name"></div>
+        </div>
+        <div class="rp-row"><span class="rp-key">CALLSIGN</span><span class="rp-val purple" id="rp-sub-callsign">—</span></div>
+        <div class="rp-row"><span class="rp-key">GROUP</span><span class="rp-val" id="rp-sub-group">—</span></div>
+        <div class="rp-row"><span class="rp-key">MBTI</span><span class="rp-val" id="rp-sub-mbti">—</span></div>
+        <div class="rp-row"><span class="rp-key">DOB</span><span class="rp-val" id="rp-sub-dob">—</span></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="rp-section" id="stats-section">
+        <div class="rp-title">INTEL STATS</div>
+        <div class="stat-row"><span class="stat-key">ICBM SITES</span><span class="stat-val" id="stat-silos">—</span>
+        </div>
+        <div class="stat-row"><span class="stat-key">INSTALLATIONS</span><span class="stat-val" id="stat-bases">0</span>
+        </div>
+        <div class="stat-row"><span class="stat-key">USER MARKERS</span><span class="stat-val"
+            id="stat-markers">0</span></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="rp-section">
+        <div class="rp-title">LEGEND</div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="display:flex;align-items:center;gap:5px">
+            <svg width="8" height="8" viewBox="0 0 8 8">
+              <rect x="0.5" y="0.5" width="7" height="7" transform="rotate(45 4 4)" fill="none" stroke="#cba6f7"
+                stroke-width="1" />
+            </svg>
+            <span style="font-size:7.5px;color:var(--subtext)">341st MW (MT)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <svg width="8" height="8" viewBox="0 0 8 8">
+              <rect x="0.5" y="0.5" width="7" height="7" transform="rotate(45 4 4)" fill="none" stroke="#89b4fa"
+                stroke-width="1" />
+            </svg>
+            <span style="font-size:7.5px;color:var(--subtext)">91st MW (ND)</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <svg width="8" height="8" viewBox="0 0 8 8">
+              <rect x="0.5" y="0.5" width="7" height="7" transform="rotate(45 4 4)" fill="none" stroke="#a6e3a1"
+                stroke-width="1" />
+            </svg>
+            <span style="font-size:7.5px;color:var(--subtext)">90th MW (WY)</span>
+          </div>
+          <div style="margin-top:3px;display:flex;align-items:center;gap:5px">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <rect x="0.5" y="0.5" width="9" height="9" fill="#f9e2af" fill-opacity="0.3" stroke="#f9e2af"
+                stroke-width="1" />
+            </svg>
+            <span style="font-size:7.5px;color:var(--subtext)">Bomber base</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <rect x="0.5" y="0.5" width="9" height="9" fill="#f38ba8" fill-opacity="0.3" stroke="#f38ba8"
+                stroke-width="1" />
+            </svg>
+            <span style="font-size:7.5px;color:var(--subtext)">Command</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <rect x="0.5" y="0.5" width="9" height="9" fill="#a6e3a1" fill-opacity="0.3" stroke="#a6e3a1"
+                stroke-width="1" />
+            </svg>
+            <span style="font-size:7.5px;color:var(--subtext)">SSBN base</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- User marker list -->
+      <div style="padding:7px 8px 3px;border-bottom:1px solid var(--border)">
+        <div class="rp-title">USER MARKERS</div>
+      </div>
+      <div id="marker-list"></div>
+
+    </div><!-- /right-panel -->
+
+  </div><!-- /workspace -->
+
+  <!-- ─── BOTTOM PANEL ──────────────────────────────────────────────────────── -->
+  <div id="bottom-panel">
+    <!-- Search bar -->
+    <div id="bp-search-bar">
+      <svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="var(--overlay0)" stroke-width="1"
+        style="flex-shrink:0">
+        <circle cx="4.5" cy="4.5" r="3.5" />
+        <line x1="7.5" y1="7.5" x2="10" y2="10" />
+      </svg>
+      <input type="text" id="bp-search" placeholder="search locations..." autocomplete="off" spellcheck="false" />
+      <span id="bp-search-count"></span>
+    </div>
+    <!-- 4-column headers -->
+    <div id="bp-col-headers">
+      <div class="bp-col-head">PERSONNEL <span class="bp-col-count" id="cnt-personnel"></span></div>
+      <div class="bp-col-head">ICBM MAF <span class="bp-col-count" id="cnt-silos"></span></div>
+      <div class="bp-col-head">INSTALLATIONS <span class="bp-col-count" id="cnt-bases"></span></div>
+      <div class="bp-col-head">MARKERS <span class="bp-col-count" id="cnt-markers"></span></div>
+    </div>
+
+    <!-- 4 columns side by side -->
+    <div id="bp-content">
+
+      <!-- PERSONNEL -->
+      <div class="bp-col" id="col-personnel">
+        <table class="feat-table">
+          <thead><tr><th>NAME</th><th>CALLSIGN</th><th>GROUP</th></tr></thead>
+          <tbody id="personnel-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="bp-col-div"></div>
+
+      <!-- ICBM MAFs -->
+      <div class="bp-col" id="col-silos">
+        <table class="feat-table">
+          <thead><tr><th>MAF</th><th>WING</th><th>LAT</th><th>LNG</th></tr></thead>
+          <tbody id="silos-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="bp-col-div"></div>
+
+      <!-- INSTALLATIONS -->
+      <div class="bp-col" id="col-bases">
+        <table class="feat-table">
+          <thead><tr><th>NAME</th><th>TYPE</th><th>LAT</th><th>LNG</th><th>UNIT</th></tr></thead>
+          <tbody id="bases-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="bp-col-div"></div>
+
+      <!-- MARKERS -->
+      <div class="bp-col" id="col-markers">
+        <table class="feat-table">
+          <thead><tr><th>NAME</th><th>TYPE</th><th>LAT</th><th>LNG</th><th>NOTES</th></tr></thead>
+          <tbody id="markers-tbody"></tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- hidden log sink so log() calls don't throw -->
+    <div id="log-list" style="display:none"></div>
+  </div>
+
+  <!-- ─── MODALS ────────────────────────────────────────────────────────────── -->
+
+  <!-- Add Point Modal -->
+  <div class="modal-overlay" id="modal-point">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>ADD POINT</span>
+        <button class="modal-close" onclick="closePointModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="modal-label">DESIGNATION</div>
+          <input class="modal-input" id="pt-name" type="text" placeholder="Point label..." />
+        </div>
+        <div>
+          <div class="modal-label">NOTES</div>
+          <textarea class="modal-textarea" id="pt-notes" placeholder="Intel notes..."></textarea>
+        </div>
+        <div>
+          <div class="modal-label">ATTACH IMAGE</div>
+          <input class="modal-input" id="pt-img" type="file" accept="image/*" style="padding:3px" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closePointModal()">CANCEL</button>
+        <button class="btn primary" onclick="submitPoint()">CONFIRM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Stamp Modal -->
+  <div class="modal-overlay" id="modal-stamp">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span>ADD STAMP</span>
+        <button class="modal-close" onclick="closeStampModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="modal-label">STAMP TYPE</div>
+          <div class="stamp-grid" id="stamp-grid"></div>
+        </div>
+        <div>
+          <div class="modal-label">LABEL</div>
+          <input class="modal-input" id="st-name" type="text" placeholder="Override label (optional)..." />
+        </div>
+        <div>
+          <div class="modal-label">NOTES</div>
+          <textarea class="modal-textarea" id="st-notes" placeholder="Intel notes..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeStampModal()">CANCEL</button>
+        <button class="btn primary" onclick="submitStamp()">CONFIRM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personnel Tracking Modal -->
+  <div class="modal-overlay" id="modal-personnel">
+    <div class="pers-modal-box">
+      <div class="pers-modal-hd">
+        <span>PERSONNEL TRACKING</span>
+        <button class="pers-btn pers-btn-fill" onclick="showAddForm()">+ Add subject</button>
+        <button class="modal-close" onclick="closePersModal()">×</button>
+      </div>
+      <div class="pers-layout">
+        <!-- Left: person list -->
+        <div class="pers-sidebar">
+          <input type="text" id="pers-search-input" class="pers-search-input"
+            placeholder="search personnel..." autocomplete="off" spellcheck="false"
+            oninput="renderPersList(this.value)" />
+          <div id="pers-list"></div>
+        </div>
+        <!-- Right: detail / form -->
+        <div id="pers-detail">
+          <div class="pers-placeholder">← SELECT A SUBJECT OR ADD NEW</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-app confirm dialog -->
+  <div class="modal-overlay" id="modal-confirm">
+    <div style="background:var(--surface0);border:1px solid var(--border);width:320px;max-width:90vw;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <span id="confirm-title" style="font-size:10px;letter-spacing:0.1em;color:var(--red);font-family:'Inter',sans-serif"></span>
+      </div>
+      <div style="padding:14px;font-size:10.5px;color:var(--text);line-height:1.6;font-family:'Inter',sans-serif" id="confirm-message"></div>
+      <div style="display:flex;gap:8px;padding:10px 14px;justify-content:flex-end;border-top:1px solid var(--border)">
+        <button id="confirm-cancel-btn" class="cdlg-btn cdlg-cancel">Cancel</button>
+        <button id="confirm-ok-btn" class="cdlg-btn cdlg-ok">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Measure tooltip -->
+  <div id="measure-tip"></div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-geometryutil/0.10.3/leaflet.geometryutil.min.js"></script>
+  <!-- Load source intel data before data.js -->
+  <script src="intel_db.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="personnel.js"></script>
+</body>
+
+</html>
