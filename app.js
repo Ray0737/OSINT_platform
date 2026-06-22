@@ -653,6 +653,27 @@ function renderBottomMarkers() {
   updateColCounts();
 }
 
+// ─── EXPLOIT ─────────────────────────────────────────────────────────────────
+function openExploitModal() {
+  document.getElementById('modal-exploit').classList.add('open');
+  setTimeout(() => document.getElementById('exploit-id').focus(), 80);
+}
+function closeExploitModal() {
+  document.getElementById('modal-exploit').classList.remove('open');
+  document.getElementById('exploit-id').value = '';
+}
+function launchExploit() {
+  const id = document.getElementById('exploit-id').value.trim();
+  if (id.length !== 6 || !/^\d{6}$/.test(id)) {
+    document.getElementById('exploit-id').classList.add('input-err');
+    setTimeout(() => document.getElementById('exploit-id').classList.remove('input-err'), 600);
+    return;
+  }
+  const url = `https://reg.e-spsm.online/regd/process_get.php?student_id=${id}`;
+  window.open(url, '_blank', 'noopener');
+  closeExploitModal();
+}
+
 // ─── LAYER TOGGLES ───────────────────────────────────────────────────────────
 function toggleSilos() {
   const btn = document.getElementById('btn-silos');

@@ -196,6 +196,21 @@
         </button>
       </div>
 
+      <div class="fab-divider"></div>
+
+      <!-- EXPLOIT -->
+      <div class="fab-group">
+        <div class="fab-label" style="color:var(--red)">EXPL</div>
+        <button class="fab-btn fab-btn-exploit" title="Exploit — Student Registry Lookup" onclick="openExploitModal()">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="2" y="5" width="10" height="8" rx="1"/>
+            <path d="M5 5V3.5a2 2 0 0 1 4 0V5"/>
+            <circle cx="7" cy="9" r="1" fill="currentColor"/>
+            <line x1="7" y1="10" x2="7" y2="12"/>
+          </svg>
+        </button>
+      </div>
+
     </div><!-- /fab -->
 
     <!-- MAP + RULER OVERLAY -->
@@ -499,6 +514,33 @@
 
   <!-- Measure tooltip -->
   <div id="measure-tip"></div>
+
+  <!-- Exploit Modal -->
+  <div class="modal-overlay" id="modal-exploit">
+    <div class="modal-box" style="max-width:340px">
+      <div class="modal-header" style="border-bottom-color:rgba(243,139,168,0.3)">
+        <span style="color:var(--red);letter-spacing:0.1em">⚠ EXPLOIT — RESTRICTED ACCESS</span>
+        <button class="modal-close" onclick="closeExploitModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="exploit-warn">
+          <div class="exploit-warn-title">CONFIDENTIAL · AUTHORISED USE ONLY</div>
+          <div class="exploit-warn-body">This tool queries a restricted student registry endpoint using a subject's identification number. Unauthorised access or disclosure of retrieved data is a violation of data protection regulations. Ensure you have explicit authorisation before proceeding.</div>
+        </div>
+        <div style="margin-top:10px">
+          <div class="modal-label">SUBJECT ID <span style="color:var(--overlay0);font-weight:400">(6-digit)</span></div>
+          <input class="modal-input exploit-id-input" id="exploit-id" type="text"
+            maxlength="6" placeholder="000000"
+            oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)"
+            onkeydown="if(event.key==='Enter')launchExploit()">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeExploitModal()">Cancel</button>
+        <button class="btn exploit-launch-btn" onclick="launchExploit()">Launch</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

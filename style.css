@@ -653,6 +653,51 @@ body {
 .btn.primary:hover { background: #b891e8; border-color: #b891e8; }
 .btn.danger { border-color: var(--red); color: var(--red); }
 
+/* ── Exploit button ── */
+.fab-btn-exploit { color: var(--red) !important; }
+.fab-btn-exploit:hover { border-color: var(--red) !important; }
+
+/* ── Exploit modal ── */
+.exploit-warn {
+  background: rgba(243,139,168,0.06);
+  border: 1px solid rgba(243,139,168,0.25);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.exploit-warn-title {
+  font-size: 8px;
+  color: var(--red);
+  letter-spacing: 0.12em;
+  font-family: 'JetBrains Mono', monospace;
+}
+.exploit-warn-body {
+  font-size: 8.5px;
+  color: var(--subtext);
+  line-height: 1.6;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.exploit-id-input {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  letter-spacing: 0.25em;
+  text-align: center;
+}
+.exploit-launch-btn {
+  background: var(--red);
+  border-color: var(--red);
+  color: #1e1e2e;
+  font-weight: 700;
+}
+.exploit-launch-btn:hover { background: #e07090; border-color: #e07090; color: #1e1e2e; }
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-4px); }
+  40%,80%  { transform: translateX(4px); }
+}
+.input-err { animation: shake 0.4s ease; border-color: var(--red) !important; }
+
 /* styled file input */
 .modal-file-label {
   display: flex;
