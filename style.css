@@ -659,10 +659,6 @@ body {
 
 /* ── Exploit modal ── */
 .exploit-warn {
-  background: rgba(243,139,168,0.04);
-  border: 1px solid rgba(243,139,168,0.2);
-  border-left: 3px solid var(--red);
-  padding: 9px 11px;
   display: flex;
   flex-direction: column;
   gap: 6px;
