@@ -334,7 +334,7 @@ function renderPersForm(p) {
 
     <!-- Identity -->
     <div class="pf-section">
-      <div class="pf-section-hd">// IDENTITY</div>
+      <div class="pf-section-hd">Identity</div>
       <div class="pers-fld">
         <label>FULL NAME</label>
         <input type="text" name="fullName" value="${p?.fullName || ''}" class="pers-input" placeholder="Subject full name">
@@ -356,7 +356,7 @@ function renderPersForm(p) {
 
     <!-- Contact -->
     <div class="pf-section">
-      <div class="pf-section-hd">// CONTACT</div>
+      <div class="pf-section-hd">Contact</div>
       <div class="pers-form-grid">
         ${fld('Phone','phone',p?.phone,'tel')}
         ${fld('Email','email',p?.email,'email')}
@@ -369,7 +369,7 @@ function renderPersForm(p) {
 
     <!-- Social Media -->
     <div class="pf-section">
-      <div class="pf-section-hd">// SOCIAL MEDIA</div>
+      <div class="pf-section-hd">Social Media</div>
       <div class="pf-sm-grid">
         ${fld('Instagram','sm_instagram',sm.instagram,'text')}
         ${fld('Facebook','sm_facebook',sm.facebook,'text')}
@@ -383,7 +383,7 @@ function renderPersForm(p) {
 
     <!-- Tags -->
     <div class="pf-section">
-      <div class="pf-section-hd">// TAGS</div>
+      <div class="pf-section-hd">Tags</div>
       <div class="pf-tag-row">
         <input type="text" id="tag-input" class="pers-input" placeholder="Add tag..."
           onkeydown="if(event.key==='Enter'){event.preventDefault();addFormTag()}">
