@@ -264,7 +264,7 @@ function addUserMarker(data, doSave = true) {
   const m = L.marker([data.lat, data.lng], { icon, draggable: true });
   m._gothamData = data;
   m.bindPopup(buildPopup(data.name || 'USER POINT', data.notes || '', data.lat, data.lng, data.stamp || 'custom', data.img || null));
-  m.on('click', () => selectFeature(data.name || 'USER POINT', data.kind === 'stamp' ? data.stamp : 'CUSTOM MARKER', data.lat, data.lng));
+  m.on('click', () => {});
   m.on('dragend', () => {
     const ll = m.getLatLng();
     data.lat = ll.lat; data.lng = ll.lng;
@@ -563,7 +563,7 @@ function refreshRightMarkers() {
     el.innerHTML = `<span class="ml-name">${d.name}</span><span class="ml-sub">${d.kind === 'stamp' ? d.stamp : 'POINT'} · ${d.lat.toFixed(4)}</span>`;
     el.addEventListener('click', () => {
       map.setView([d.lat, d.lng], 13);
-      selectFeature(d.name, d.kind === 'stamp' ? d.stamp : 'USER MARKER', d.lat, d.lng);
+      // no sidebar update for user markers
     });
     list.appendChild(el);
   });
@@ -591,7 +591,7 @@ function renderBottomMarkers() {
     });
     tr.addEventListener('click', () => {
       map.setView([d.lat, d.lng], 13);
-      selectFeature(d.name || 'USER POINT', d.kind === 'stamp' ? d.stamp : 'USER MARKER', d.lat, d.lng);
+      // no sidebar update for user markers
     });
     tbody.appendChild(tr);
   });
