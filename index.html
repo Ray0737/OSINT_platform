@@ -517,27 +517,34 @@
 
   <!-- Exploit Modal -->
   <div class="modal-overlay" id="modal-exploit">
-    <div class="modal-box" style="max-width:340px">
+    <div class="modal-box" style="max-width:360px">
       <div class="modal-header" style="border-bottom-color:rgba(243,139,168,0.3)">
-        <span style="color:var(--red);letter-spacing:0.1em">⚠ EXPLOIT — RESTRICTED ACCESS</span>
+        <span style="color:var(--red);letter-spacing:0.08em;font-size:10px">⚠ RESTRICTED ENDPOINT ACCESS</span>
         <button class="modal-close" onclick="closeExploitModal()">✕</button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="gap:10px">
         <div class="exploit-warn">
-          <div class="exploit-warn-title">CONFIDENTIAL · AUTHORISED USE ONLY</div>
-          <div class="exploit-warn-body">This tool queries a restricted student registry endpoint using a subject's identification number. Unauthorised access or disclosure of retrieved data is a violation of data protection regulations. Ensure you have explicit authorisation before proceeding.</div>
+          <div class="exploit-warn-title">⬛ CLASSIFIED · OPERATOR USE ONLY</div>
+          <div class="exploit-warn-body">Interface connects to a secured government registry. Retrieved data is classified and subject to data sovereignty law. All access attempts are logged. Unauthorised queries constitute a criminal offence under applicable statutes. Proceed only with verified chain-of-command authorisation.</div>
+          <div class="exploit-warn-footer">Access is monitored · Session will be recorded</div>
         </div>
-        <div style="margin-top:10px">
-          <div class="modal-label">SUBJECT ID <span style="color:var(--overlay0);font-weight:400">(6-digit)</span></div>
+        <div>
+          <div class="modal-label">SUBJECT ID <span style="color:var(--overlay0);font-weight:400;font-size:8px">(6-digit national ID)</span></div>
           <input class="modal-input exploit-id-input" id="exploit-id" type="text"
-            maxlength="6" placeholder="000000"
+            maxlength="6" placeholder="_ _ _ _ _ _"
             oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)"
+            onkeydown="if(event.key==='Enter')launchExploit()">
+        </div>
+        <div>
+          <div class="modal-label">FAILSAFE KEY <span style="color:var(--overlay0);font-weight:400;font-size:8px">(operator credential)</span></div>
+          <input class="modal-input exploit-key-input" id="exploit-key" type="password"
+            placeholder="Enter authorisation key"
             onkeydown="if(event.key==='Enter')launchExploit()">
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn" onclick="closeExploitModal()">Cancel</button>
-        <button class="btn exploit-launch-btn" onclick="launchExploit()">Launch</button>
+        <button class="btn" onclick="closeExploitModal()">Abort</button>
+        <button class="btn exploit-launch-btn" onclick="launchExploit()">⚡ Launch</button>
       </div>
     </div>
   </div>

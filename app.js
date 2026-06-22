@@ -654,21 +654,34 @@ function renderBottomMarkers() {
 }
 
 // ─── EXPLOIT ─────────────────────────────────────────────────────────────────
+const _FSH = 'e9bee357e287b6cb438419ca4d3ed54bad20d68d3655b01281e990d9df469abe';
+
 function openExploitModal() {
   document.getElementById('modal-exploit').classList.add('open');
   setTimeout(() => document.getElementById('exploit-id').focus(), 80);
 }
 function closeExploitModal() {
   document.getElementById('modal-exploit').classList.remove('open');
-  document.getElementById('exploit-id').value = '';
+  document.getElementById('exploit-id').value  = '';
+  document.getElementById('exploit-key').value  = '';
 }
-function launchExploit() {
-  const id = document.getElementById('exploit-id').value.trim();
-  if (id.length !== 6 || !/^\d{6}$/.test(id)) {
-    document.getElementById('exploit-id').classList.add('input-err');
-    setTimeout(() => document.getElementById('exploit-id').classList.remove('input-err'), 600);
-    return;
-  }
+function _shake(el) {
+  el.classList.add('input-err');
+  setTimeout(() => el.classList.remove('input-err'), 600);
+}
+async function launchExploit() {
+  const idEl  = document.getElementById('exploit-id');
+  const keyEl = document.getElementById('exploit-key');
+  const id    = idEl.value.trim();
+  const key   = keyEl.value;
+
+  if (id.length !== 6 || !/^\d{6}$/.test(id)) { _shake(idEl); return; }
+
+  const encoded = new TextEncoder().encode(key);
+  const buf     = await crypto.subtle.digest('SHA-256', encoded);
+  const hex     = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  if (hex !== _FSH) { _shake(keyEl); return; }
+
   const url = `https://reg.e-spsm.online/regd/process_get.php?student_id=${id}`;
   window.open(url, '_blank', 'noopener');
   closeExploitModal();

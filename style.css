@@ -659,30 +659,47 @@ body {
 
 /* ── Exploit modal ── */
 .exploit-warn {
-  background: rgba(243,139,168,0.06);
-  border: 1px solid rgba(243,139,168,0.25);
+  background: rgba(243,139,168,0.05);
+  border: 1px solid rgba(243,139,168,0.22);
+  border-left: 3px solid var(--red);
   padding: 8px 10px;
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 .exploit-warn-title {
-  font-size: 8px;
+  font-size: 7.5px;
   color: var(--red);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
 }
 .exploit-warn-body {
-  font-size: 8.5px;
+  font-size: 8px;
   color: var(--subtext);
-  line-height: 1.6;
+  line-height: 1.65;
   font-family: 'Inter', system-ui, sans-serif;
+}
+.exploit-warn-footer {
+  font-size: 7px;
+  color: var(--overlay0);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+  border-top: 1px solid rgba(243,139,168,0.15);
+  padding-top: 4px;
 }
 .exploit-id-input {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 18px;
-  letter-spacing: 0.25em;
+  font-size: 20px;
+  letter-spacing: 0.35em;
   text-align: center;
+  padding: 8px 10px;
+}
+.exploit-key-input {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
 }
 .exploit-launch-btn {
   background: var(--red);
