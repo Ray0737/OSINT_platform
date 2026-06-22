@@ -59,6 +59,7 @@ let measurePoints = [], measureLayer = null;
 let pendingLatLng = null;
 let selectedStamp = STAMP_TYPES[0];
 let activeDrawHandler = null;
+const personnelLayer = L.layerGroup();
 
 // ─── SVG icons ───────────────────────────────────────────────────────────────
 function makeDiamond(color) {
@@ -222,10 +223,12 @@ function loadInstallations() {
   installLayer.addTo(map);
 }
 
-function buildPopup(name, sub, lat, lng, status, imgSrc) {
+function buildPopup(name, sub, lat, lng, status, imgSrc, linkedPerson) {
   const imgHtml = imgSrc ? `<img src="${imgSrc}" class="popup-img" />` : '';
   const lngLabel = lng < 0 ? `${Math.abs(lng).toFixed(4)}°W` : `${lng.toFixed(4)}°E`;
   const latLabel = lat >= 0 ? `${lat.toFixed(4)}°N` : `${Math.abs(lat).toFixed(4)}°S`;
+  const linkedHtml = linkedPerson
+    ? `<div style="font-size:8px;color:var(--cyan);margin-top:4px;border-top:1px solid rgba(137,220,235,0.2);padding-top:3px">▶ ${linkedPerson.fullName||linkedPerson.callsign}</div>` : '';
   return `<div style="line-height:1.4">
     <div style="color:var(--purple);font-weight:500;font-size:9.5px;margin-bottom:1px;letter-spacing:0.04em">${name}</div>
     <div style="color:var(--overlay0);font-size:8px;margin-bottom:4px;line-height:1.3">${sub}</div>
@@ -235,8 +238,50 @@ function buildPopup(name, sub, lat, lng, status, imgSrc) {
       <span style="color:var(--yellow);font-size:8.5px">${lngLabel}</span>
     </div>
     <div style="font-size:7.5px;color:var(--green);margin-top:2px;letter-spacing:0.08em">${status.toUpperCase()}</div>
+    ${linkedHtml}
     ${imgHtml}
   </div>`;
+}
+
+// ─── PERSONNEL MARKERS ───────────────────────────────────────────────────────
+function makePersonnelIcon(p) {
+  const initials = ((p.fullName||p.callsign||'?').split(' ').map(w=>w[0]).join('').slice(0,2)).toUpperCase();
+  return L.divIcon({
+    className: 'gicon',
+    html: `<svg width="20" height="20" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="9" fill="#1e1e2e" stroke="#cba6f7" stroke-width="1.2"/>
+      <text x="10" y="14" text-anchor="middle" font-size="7" font-family="Inter,sans-serif" fill="#cba6f7" font-weight="700">${initials}</text>
+    </svg>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
+  });
+}
+
+function renderPersonnelMarkers() {
+  personnelLayer.clearLayers();
+  if (typeof persState === 'undefined') return;
+  persState.list.forEach(p => {
+    if (!p.homeLat || !p.homeLng) return;
+    const lat = parseFloat(p.homeLat), lng = parseFloat(p.homeLng);
+    if (isNaN(lat) || isNaN(lng)) return;
+    const m = L.marker([lat, lng], { icon: makePersonnelIcon(p) });
+    m.bindPopup(`<div style="line-height:1.5">
+      <div style="color:var(--purple);font-weight:600;font-size:9.5px">${p.fullName||'—'}</div>
+      ${p.callsign ? `<div style="color:var(--yellow);font-size:8px">${p.callsign}</div>` : ''}
+      ${p.address  ? `<div style="color:var(--overlay0);font-size:7.5px;margin-top:2px">${p.address}</div>` : ''}
+      <div style="color:var(--subtext);font-size:7.5px;margin-top:3px">${lat.toFixed(5)}°N &nbsp; ${Math.abs(lng).toFixed(5)}°${lng<0?'W':'E'}</div>
+    </div>`);
+    personnelLayer.addLayer(m);
+  });
+  if (!map.hasLayer(personnelLayer)) personnelLayer.addTo(map);
+}
+
+function populateLinkedSelect(selId) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  const list = typeof persState !== 'undefined' ? persState.list : [];
+  sel.innerHTML = '<option value="">— None —</option>' +
+    list.map(p => `<option value="${p.id}">${p.fullName||p.callsign||'ID '+p.id}${p.callsign&&p.fullName?' ('+p.callsign+')':''}</option>`).join('');
 }
 
 // ─── USER MARKERS ────────────────────────────────────────────────────────────
@@ -261,9 +306,11 @@ function addUserMarker(data, doSave = true) {
   } else {
     icon = makeCircleIcon('#cba6f7');
   }
+  const linkedPerson = data.linkedPersonId && typeof persState !== 'undefined'
+    ? persState.list.find(p => p.id === Number(data.linkedPersonId)) : null;
   const m = L.marker([data.lat, data.lng], { icon, draggable: true });
   m._gothamData = data;
-  m.bindPopup(buildPopup(data.name || 'USER POINT', data.notes || '', data.lat, data.lng, data.stamp || 'custom', data.img || null));
+  m.bindPopup(buildPopup(data.name || 'USER POINT', data.notes || '', data.lat, data.lng, data.stamp || 'custom', data.img || null, linkedPerson));
   m.on('click', () => {});
   m.on('dragend', () => {
     const ll = m.getLatLng();
@@ -399,11 +446,13 @@ function setTool(tool) {
 // ─── MODALS ───────────────────────────────────────────────────────────────────
 function openPointModal() {
   document.getElementById('modal-point').classList.add('open');
+  populateLinkedSelect('pt-link-person');
   document.getElementById('pt-name').focus();
 }
 function closePointModal() {
   document.getElementById('modal-point').classList.remove('open');
   document.getElementById('pt-name').value  = '';
+  const lnk = document.getElementById('pt-link-person'); if (lnk) lnk.value = '';
   document.getElementById('pt-notes').value = '';
   document.getElementById('pt-img').value   = '';
   const nameEl = document.getElementById('pt-img-name');
@@ -416,8 +465,9 @@ function submitPoint() {
   const name  = document.getElementById('pt-name').value.trim() || 'POINT';
   const notes = document.getElementById('pt-notes').value.trim();
   const imgFile = document.getElementById('pt-img').files[0];
+  const linkedPersonId = document.getElementById('pt-link-person')?.value || '';
   const doAdd = (imgSrc) => {
-    addUserMarker({ kind: 'point', lat: pendingLatLng.lat, lng: pendingLatLng.lng, name, notes, img: imgSrc || null });
+    addUserMarker({ kind: 'point', lat: pendingLatLng.lat, lng: pendingLatLng.lng, name, notes, img: imgSrc || null, linkedPersonId });
     closePointModal();
   };
   if (imgFile) {
@@ -431,17 +481,20 @@ function submitPoint() {
 
 function openStampModal() {
   document.getElementById('modal-stamp').classList.add('open');
+  populateLinkedSelect('st-link-person');
 }
 function closeStampModal() {
   document.getElementById('modal-stamp').classList.remove('open');
+  const lnk = document.getElementById('st-link-person'); if (lnk) lnk.value = '';
   pendingLatLng = null;
   setTool(null);
 }
 function submitStamp() {
   if (!pendingLatLng) return;
-  const name  = document.getElementById('st-name').value.trim() || selectedStamp.label;
-  const notes = document.getElementById('st-notes').value.trim();
-  addUserMarker({ kind: 'stamp', lat: pendingLatLng.lat, lng: pendingLatLng.lng, name, notes, stamp: selectedStamp.id });
+  const name           = document.getElementById('st-name').value.trim() || selectedStamp.label;
+  const notes          = document.getElementById('st-notes').value.trim();
+  const linkedPersonId = document.getElementById('st-link-person')?.value || '';
+  addUserMarker({ kind: 'stamp', lat: pendingLatLng.lat, lng: pendingLatLng.lng, name, notes, stamp: selectedStamp.id, linkedPersonId });
   closeStampModal();
   document.getElementById('st-name').value = '';
   document.getElementById('st-notes').value = '';
@@ -578,12 +631,14 @@ function renderBottomMarkers() {
   userMarkers.forEach((m, idx) => {
     const d = m._gothamData;
     const tr = document.createElement('tr');
+    const linked = d.linkedPersonId && typeof persState !== 'undefined'
+      ? persState.list.find(p => p.id === Number(d.linkedPersonId)) : null;
     tr.innerHTML = `
       <td class="hl-purple">${d.name || 'USER POINT'}</td>
       <td style="font-size:8px;color:var(--subtext)">${d.kind === 'stamp' ? d.stamp : 'POINT'}</td>
+      <td style="font-size:8px;color:var(--cyan)">${linked ? (linked.fullName||linked.callsign) : '—'}</td>
       <td>${d.lat.toFixed(4)}</td>
       <td>${d.lng.toFixed(4)}</td>
-      <td style="font-size:8px;color:var(--overlay0)">${(d.notes||'').substring(0,28)}</td>
       <td><button class="bp-del-btn" title="Delete">×</button></td>`;
     tr.querySelector('.bp-del-btn').addEventListener('click', e => {
       e.stopPropagation();

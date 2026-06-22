@@ -373,7 +373,7 @@
       <!-- MARKERS -->
       <div class="bp-col" id="col-markers">
         <table class="feat-table">
-          <thead><tr><th>NAME</th><th>TYPE</th><th>LAT</th><th>LNG</th><th>NOTES</th><th></th></tr></thead>
+          <thead><tr><th>NAME</th><th>TYPE</th><th>SUBJECT</th><th>LAT</th><th>LNG</th><th></th></tr></thead>
           <tbody id="markers-tbody"></tbody>
         </table>
       </div>
@@ -403,6 +403,12 @@
           <textarea class="modal-textarea" id="pt-notes" placeholder="Intel notes..."></textarea>
         </div>
         <div>
+          <div class="modal-label">LINKED SUBJECT</div>
+          <select class="modal-input" id="pt-link-person" style="font-size:9px">
+            <option value="">— None —</option>
+          </select>
+        </div>
+        <div>
           <div class="modal-label">ATTACH IMAGE</div>
           <label class="modal-file-label" id="pt-img-label">
             <span id="pt-img-name">No file chosen</span>
@@ -430,6 +436,12 @@
         <div>
           <div class="modal-label">STAMP TYPE</div>
           <div class="stamp-grid" id="stamp-grid"></div>
+        </div>
+        <div>
+          <div class="modal-label">LINKED SUBJECT</div>
+          <select class="modal-input" id="st-link-person" style="font-size:9px">
+            <option value="">— None —</option>
+          </select>
         </div>
         <div>
           <div class="modal-label">LABEL</div>

@@ -372,6 +372,10 @@ function renderPersForm(p) {
         <label>ADDRESS</label>
         <input type="text" name="address" value="${p?.address || ''}" class="pers-input" placeholder="Address / Location">
       </div>
+      <div class="pers-form-grid" style="margin-top:5px">
+        ${fld('Home Lat','homeLat',p?.homeLat,'number')}
+        ${fld('Home Lng','homeLng',p?.homeLng,'number')}
+      </div>
     </div>
 
     <!-- Social Media -->
@@ -463,6 +467,7 @@ async function savePerson(existingId) {
   renderPersList(document.getElementById('pers-search-input').value);
   renderPersDetail();
   renderBottomPersonnel();
+  if (typeof renderPersonnelMarkers === 'function') renderPersonnelMarkers();
 }
 
 // ─── DELETE SUBJECT ───────────────────────────────────────────────────────────
@@ -477,6 +482,7 @@ async function deletePerson(id) {
   showSubjectInSidebar(null);
   renderPersList(document.getElementById('pers-search-input').value);
   renderBottomPersonnel();
+  if (typeof renderPersonnelMarkers === 'function') renderPersonnelMarkers();
   document.getElementById('pers-detail').innerHTML =
     '<div class="pers-placeholder">← SELECT A SUBJECT OR ADD NEW</div>';
 }
@@ -558,6 +564,7 @@ async function initPersonnelWidget() {
   await PERSDB.open();
   persState.list = await PERSDB.getAll('personnel');
   renderBottomPersonnel();
+  if (typeof renderPersonnelMarkers === 'function') renderPersonnelMarkers();
 }
 
 // ─── PHOTO UTILS ─────────────────────────────────────────────────────────────
