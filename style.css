@@ -629,16 +629,54 @@ body {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--subtext);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  padding: 4px 10px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 9.5px;
+  padding: 4px 12px;
   cursor: pointer;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.01em;
 }
 .btn:hover { border-color: var(--purple); color: var(--purple); }
-.btn.primary { border-color: var(--purple); color: var(--purple); }
-.btn.primary:hover { background: rgba(203,166,247,0.1); }
+.btn.primary {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #1e1e2e;
+  font-weight: 600;
+}
+.btn.primary:hover { background: #b891e8; border-color: #b891e8; }
 .btn.danger { border-color: var(--red); color: var(--red); }
+
+/* styled file input */
+.modal-file-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 9px;
+  color: var(--overlay0);
+  font-family: 'Inter', system-ui, sans-serif;
+  user-select: none;
+  transition: border-color 0.15s;
+}
+.modal-file-label:hover { border-color: var(--purple); }
+.modal-file-btn {
+  background: var(--surface1);
+  color: var(--subtext);
+  padding: 3px 9px;
+  font-size: 8.5px;
+  flex-shrink: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  border: 1px solid var(--border);
+}
+.modal-file-label:hover .modal-file-btn { border-color: var(--purple); color: var(--purple); }
+#pt-img-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 /* stamp picker grid */
 .stamp-grid {

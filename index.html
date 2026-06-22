@@ -401,12 +401,17 @@
         </div>
         <div>
           <div class="modal-label">ATTACH IMAGE</div>
-          <input class="modal-input" id="pt-img" type="file" accept="image/*" style="padding:3px" />
+          <label class="modal-file-label" id="pt-img-label">
+            <span id="pt-img-name">No file chosen</span>
+            <span class="modal-file-btn">Choose file</span>
+            <input type="file" accept="image/*" id="pt-img" style="display:none"
+              onchange="document.getElementById('pt-img-name').textContent=this.files[0]?this.files[0].name:'No file chosen'">
+          </label>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn" onclick="closePointModal()">CANCEL</button>
-        <button class="btn primary" onclick="submitPoint()">CONFIRM</button>
+        <button class="btn" onclick="closePointModal()">Cancel</button>
+        <button class="btn primary" onclick="submitPoint()">Confirm</button>
       </div>
     </div>
   </div>
@@ -433,8 +438,8 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn" onclick="closeStampModal()">CANCEL</button>
-        <button class="btn primary" onclick="submitStamp()">CONFIRM</button>
+        <button class="btn" onclick="closeStampModal()">Cancel</button>
+        <button class="btn primary" onclick="submitStamp()">Confirm</button>
       </div>
     </div>
   </div>

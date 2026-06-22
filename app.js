@@ -276,6 +276,7 @@ function addUserMarker(data, doSave = true) {
     saveUserData();
     log('ADD', `Marker: ${data.name}`);
     refreshRightMarkers();
+    renderBottomMarkers();
   }
 }
 
@@ -390,9 +391,11 @@ function openPointModal() {
 }
 function closePointModal() {
   document.getElementById('modal-point').classList.remove('open');
-  document.getElementById('pt-name').value = '';
+  document.getElementById('pt-name').value  = '';
   document.getElementById('pt-notes').value = '';
-  document.getElementById('pt-img').value = '';
+  document.getElementById('pt-img').value   = '';
+  const nameEl = document.getElementById('pt-img-name');
+  if (nameEl) nameEl.textContent = 'No file chosen';
   pendingLatLng = null;
   setTool(null);
 }
