@@ -1445,7 +1445,7 @@ body {
 /* ── Redesigned personnel form ── */
 .pd-form-title {
   color: var(--purple);
-  font-size: 11px;
+  font-size: 9px;
   letter-spacing: 0.14em;
   font-weight: 500;
   font-family: 'JetBrains Mono', monospace;
@@ -1456,8 +1456,8 @@ body {
   padding: 4px 0 8px;
 }
 .pf-photo-drop {
-  width: 88px;
-  height: 88px;
+  width: 120px;
+  height: 120px;
   border: 1px dashed rgba(203,166,247,0.4);
   cursor: pointer;
   display: flex;
@@ -1485,7 +1485,7 @@ body {
 }
 .pf-section { display: flex; flex-direction: column; gap: 6px; }
 .pf-section-hd {
-  font-size: 12px;
+  font-size: 10px;
   color: var(--purple);
   font-weight: 700;
   font-family: 'Inter', system-ui, sans-serif;
