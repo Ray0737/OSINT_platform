@@ -243,18 +243,11 @@ async function renderPersDetail() {
         <div class="pd-dos-cell"><div class="pd-dos-lbl">Citizen ID</div><div class="pd-dos-val">${p.citizenId||'—'}</div></div>
         <div class="pd-dos-cell"><div class="pd-dos-lbl">Email</div><div class="pd-dos-val pd-dos-val-sm">${p.email||'—'}</div></div>
         <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Specialties</div><div class="pd-dos-val">${tagLine}</div></div>
-      </div>
-    </div>
-
-    ${smEntries.length ? `
-    <div class="pd-dos-section">
-      <div class="pd-dos-section-hd">SOCIAL MEDIA</div>
-      <div class="pd-dos-sm-grid">
         ${smEntries.map(([k,v]) =>
-          `<div class="pd-dos-sm-cell"><div class="pd-dos-lbl">${k}</div><div class="pd-dos-val pd-dos-val-sm">${v}</div></div>`
+          `<div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">${k}</div><div class="pd-dos-val pd-dos-val-sm">${v}</div></div>`
         ).join('')}
       </div>
-    </div>` : ''}
+    </div>
 
     <!-- Related images -->
     <div class="pd-dos-section">
