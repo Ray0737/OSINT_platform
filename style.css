@@ -146,10 +146,13 @@ body {
   align-items: center;
   padding: 6px 0;
   gap: 2px;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   z-index: 900;
   flex-shrink: 0;
+  scrollbar-width: none;
 }
+#fab::-webkit-scrollbar { display: none; }
 .fab-group {
   display: flex;
   flex-direction: column;
@@ -556,6 +559,19 @@ body {
 .feat-table td.hl-purple { color: var(--purple); }
 .feat-table td.hl-green  { color: var(--green); }
 .feat-table td.hl-red    { color: var(--red); }
+.bp-del-btn {
+  background: none;
+  border: none;
+  color: var(--overlay0);
+  font-size: 11px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+  opacity: 0;
+  transition: color 0.12s, opacity 0.12s;
+}
+.feat-table tr:hover .bp-del-btn { opacity: 1; }
+.bp-del-btn:hover { color: var(--red) !important; }
 
 /* ─── MODALS ─────────────────────────────────────────── */
 .modal-overlay {

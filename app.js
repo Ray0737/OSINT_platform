@@ -286,6 +286,7 @@ function removeUserMarker(idx) {
   userMarkers.splice(idx, 1);
   saveUserData();
   refreshRightMarkers();
+  renderBottomMarkers();
   log('DEL', `Removed marker`);
 }
 
@@ -559,7 +560,7 @@ function renderBottomMarkers() {
   const tbody = document.getElementById('markers-tbody');
   if (!tbody) return;
   tbody.innerHTML = '';
-  userMarkers.forEach(m => {
+  userMarkers.forEach((m, idx) => {
     const d = m._gothamData;
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -567,7 +568,12 @@ function renderBottomMarkers() {
       <td style="font-size:8px;color:var(--subtext)">${d.kind === 'stamp' ? d.stamp : 'POINT'}</td>
       <td>${d.lat.toFixed(4)}</td>
       <td>${d.lng.toFixed(4)}</td>
-      <td style="font-size:8px;color:var(--overlay0)">${(d.notes||'').substring(0,28)}</td>`;
+      <td style="font-size:8px;color:var(--overlay0)">${(d.notes||'').substring(0,28)}</td>
+      <td><button class="bp-del-btn" title="Delete">×</button></td>`;
+    tr.querySelector('.bp-del-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      removeUserMarker(idx);
+    });
     tr.addEventListener('click', () => {
       map.setView([d.lat, d.lng], 13);
       selectFeature(d.name || 'USER POINT', d.kind === 'stamp' ? d.stamp : 'USER MARKER', d.lat, d.lng);
