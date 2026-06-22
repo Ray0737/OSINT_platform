@@ -188,31 +188,33 @@ async function renderPersDetail() {
   ).join('');
 
   const logsHtml = logs.map(lg => {
-    const date = new Date(lg.timestamp).toLocaleString('en-GB', { hour12: false });
+    const date = new Date(lg.timestamp).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false });
+    const typeLabel = lg.type ? lg.type[0]+lg.type.slice(1).toLowerCase() : 'Note';
     const atts = (lg.attachments||[]).map(src =>
       `<img src="${src}" class="pers-log-img" onclick="viewImg('${src}')" />`).join('');
     return `<div class="pers-log-entry">
-      <div class="pers-log-meta">
-        <span class="pers-log-badge pers-badge-${(lg.type||'note').toLowerCase()}">${lg.type||'NOTE'}</span>
-        <span class="pers-log-date">${date}</span>
+      <div class="pers-log-hd">
+        <span class="pers-log-badge pers-badge-${(lg.type||'note').toLowerCase()}">${typeLabel}</span>
         <button class="pers-log-del" onclick="deleteLog(${lg.id},${p.id})">×</button>
       </div>
-      <div class="pers-log-text">${lg.content||''}</div>
+      <div class="pers-log-body">${(lg.content||'').replace(/\n/g,'<br>')}</div>
       ${atts ? `<div class="pers-log-atts">${atts}</div>` : ''}
+      <div class="pers-log-foot">Logged · ${date}</div>
     </div>`;
-  }).join('') || '<div class="pers-empty-note">No log entries</div>';
+  }).join('') || '<div class="pd-dos-empty">No log entries yet</div>';
 
   const subtitle = [
     p.groupId   ? `Class: ${p.groupId}` : '',
     p.citizenId ? `ID: ${p.citizenId}`  : ''
-  ].filter(Boolean).join(' | ');
+  ].filter(Boolean).join(' · ');
 
-  const tagLine = (p.tags||[]).join(', ') || '—';
+  const tagLine   = (p.tags||[]).join(', ') || '—';
+  const smEntries = Object.entries(p.socialMedia || {}).filter(([,v]) => v);
 
   panel.innerHTML = `
   <div class="pd-dossier">
 
-    <!-- Dossier header: name + actions -->
+    <!-- Header: name + actions -->
     <div class="pd-dos-hd">
       <div class="pd-dos-hd-text">
         <div class="pd-dos-title">${p.fullName || '—'}${p.nickName ? ` <span class="pd-dos-nick">"${p.nickName}"</span>` : ''}</div>
@@ -239,16 +241,19 @@ async function renderPersDetail() {
         <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Address</div><div class="pd-dos-val">${p.address||'—'}</div></div>
         <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Contact</div><div class="pd-dos-val">${p.phone||'—'}</div></div>
         <div class="pd-dos-cell"><div class="pd-dos-lbl">Citizen ID</div><div class="pd-dos-val">${p.citizenId||'—'}</div></div>
-        <div class="pd-dos-cell"><div class="pd-dos-lbl">Email</div><div class="pd-dos-val" style="font-size:9px">${p.email||'—'}</div></div>
-        <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Specialties / Tags</div><div class="pd-dos-val">${tagLine}</div></div>
+        <div class="pd-dos-cell"><div class="pd-dos-lbl">Email</div><div class="pd-dos-val pd-dos-val-sm">${p.email||'—'}</div></div>
+        <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Specialties</div><div class="pd-dos-val">${tagLine}</div></div>
       </div>
     </div>
 
-    ${smRows ? `
-    <!-- Social media -->
-    <div class="pd-dos-sm">
-      <div class="pd-dos-sm-hd">SOCIAL MEDIA</div>
-      <div class="pd-grid">${smRows}</div>
+    ${smEntries.length ? `
+    <div class="pd-dos-section">
+      <div class="pd-dos-section-hd">SOCIAL MEDIA</div>
+      <div class="pd-dos-sm-grid">
+        ${smEntries.map(([k,v]) =>
+          `<div class="pd-dos-sm-cell"><div class="pd-dos-lbl">${k}</div><div class="pd-dos-val pd-dos-val-sm">${v}</div></div>`
+        ).join('')}
+      </div>
     </div>` : ''}
 
     <!-- Related images -->
@@ -259,20 +264,22 @@ async function renderPersDetail() {
           <input type="file" accept="image/*" multiple style="display:none" onchange="addRelatedPics(event,${p.id})">
         </label>
       </div>
-      <div class="pers-gallery">
-        ${relPicsHtml || '<span class="pers-empty-note">No images attached</span>'}
-      </div>
+      ${relPicsHtml
+        ? `<div class="pers-gallery">${relPicsHtml}</div>`
+        : `<div class="pd-dos-empty">No images attached</div>`}
     </div>
 
     <!-- OSINT Feed -->
     <div class="pd-dos-section">
       <div class="pd-dos-section-hd">OSINT FEED</div>
       <div class="pers-log-composer">
-        <select id="log-type-sel" class="pers-sel">
-          ${['NOTE','SIGHTING','CONFIRMED','SUSPECTED','ASSOCIATE','LOCATION','COMMS','ACTIVITY','SIGINT','ELINT']
-            .map(t => `<option value="${t}">${t[0]+t.slice(1).toLowerCase()}</option>`).join('')}
-        </select>
-        <textarea id="log-text-input" class="pers-textarea" placeholder="Log entry content..." rows="3"></textarea>
+        <div class="pers-log-composer-top">
+          <select id="log-type-sel" class="pers-sel" style="flex:0 0 110px">
+            ${['NOTE','SIGHTING','CONFIRMED','SUSPECTED','ASSOCIATE','LOCATION','COMMS','ACTIVITY','SIGINT','ELINT']
+              .map(t => `<option value="${t}">${t[0]+t.slice(1).toLowerCase()}</option>`).join('')}
+          </select>
+          <textarea id="log-text-input" class="pers-textarea" placeholder="Log entry content..." rows="3" style="flex:1;min-width:0"></textarea>
+        </div>
         <div class="pers-log-composer-row">
           <label class="pers-attach-btn">
             📎 Attach photo
