@@ -522,19 +522,21 @@ function showSubjectInSidebar(p) {
   document.getElementById('rp-sub-group').textContent    = p.groupId   || '—';
   document.getElementById('rp-sub-mbti').textContent     = p.mbti      || '—';
   document.getElementById('rp-sub-dob').textContent      = p.birthDate || '—';
+  document.getElementById('rp-sub-address').textContent  = p.address   || '—';
   const tagsWrap = document.getElementById('rp-sub-tags');
   if (tagsWrap) {
     tagsWrap.innerHTML = (p.tags||[]).map(t => `<span class="rp-tag">${t}</span>`).join('');
     tagsWrap.style.display = (p.tags||[]).length ? '' : 'none';
   }
   const viewBtn = document.getElementById('rp-sub-view');
-  if (viewBtn) viewBtn.onclick = () => {
-    persState.selected = p;
-    renderPersDetail();
-    document.querySelectorAll('.fab-tab').forEach(t => t.classList.remove('active'));
-    const persTab = document.querySelector('.fab-tab[data-panel="panel-personnel"]');
-    if (persTab) persTab.click();
-  };
+  if (viewBtn) {
+    if (p.photo) {
+      viewBtn.style.display = '';
+      viewBtn.onclick = () => viewImg(p.photo);
+    } else {
+      viewBtn.style.display = 'none';
+    }
+  }
 }
 
 // ─── IN-APP CONFIRM DIALOG ────────────────────────────────────────────────────
