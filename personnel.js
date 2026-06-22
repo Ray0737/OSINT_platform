@@ -165,6 +165,15 @@ async function selectPerson(id) {
 }
 
 // ─── DETAIL VIEW ─────────────────────────────────────────────────────────────
+function dc(label, val, extra = '', small = false) {
+  const v = val || '—';
+  return `<div class="pd-dos-cell${extra ? ' '+extra : ''}">
+    <div class="pd-dos-lbl">${label}</div>
+    <div class="pd-dos-val${small?' pd-dos-val-sm':''}">${v}</div>
+    ${v !== '—' ? `<button class="pd-dos-copy" onclick="navigator.clipboard.writeText('${v.replace(/'/g,"\\'")}');this.textContent='✓';setTimeout(()=>this.textContent='⎘',1200)" title="Copy">⎘</button>` : ''}
+  </div>`;
+}
+
 async function renderPersDetail() {
   const panel = document.getElementById('pers-detail');
   const p = persState.selected;
@@ -234,18 +243,16 @@ async function renderPersDetail() {
           : `<div class="pd-dos-photo pd-dos-photo-empty"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1"><circle cx="18" cy="12" r="7"/><path d="M4 34 c0-9 28-9 28 0"/></svg></div>`}
       </div>
       <div class="pd-dos-grid">
-        <div class="pd-dos-cell"><div class="pd-dos-lbl">Callsign</div><div class="pd-dos-val">${p.callsign||'—'}</div></div>
-        <div class="pd-dos-cell"><div class="pd-dos-lbl">Birth Date</div><div class="pd-dos-val">${p.birthDate||'—'}</div></div>
-        <div class="pd-dos-cell"><div class="pd-dos-lbl">MBTI</div><div class="pd-dos-val">${p.mbti||'—'}</div></div>
-        <div class="pd-dos-cell"><div class="pd-dos-lbl">Group</div><div class="pd-dos-val">${p.groupId||'—'}</div></div>
-        <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Address</div><div class="pd-dos-val">${p.address||'—'}</div></div>
-        <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Contact</div><div class="pd-dos-val">${p.phone||'—'}</div></div>
-        <div class="pd-dos-cell"><div class="pd-dos-lbl">Citizen ID</div><div class="pd-dos-val">${p.citizenId||'—'}</div></div>
-        <div class="pd-dos-cell"><div class="pd-dos-lbl">Email</div><div class="pd-dos-val pd-dos-val-sm">${p.email||'—'}</div></div>
-        <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Specialties</div><div class="pd-dos-val">${tagLine}</div></div>
-        ${smEntries.map(([k,v]) =>
-          `<div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">${k}</div><div class="pd-dos-val pd-dos-val-sm">${v}</div></div>`
-        ).join('')}
+        ${dc('Callsign', p.callsign)}
+        ${dc('Birth Date', p.birthDate)}
+        ${dc('MBTI', p.mbti)}
+        ${dc('Group', p.groupId)}
+        ${dc('Address', p.address, 'pd-dos-span2')}
+        ${dc('Contact', p.phone, 'pd-dos-span2')}
+        ${dc('Citizen ID', p.citizenId)}
+        ${dc('Email', p.email, '', true)}
+        ${dc('Specialties', tagLine, 'pd-dos-span2')}
+        ${smEntries.map(([k,v]) => dc(k, v, 'pd-dos-span2', true)).join('')}
       </div>
     </div>
 
@@ -315,7 +322,7 @@ function renderPersForm(p) {
   <div class="pd-inner">
 
     <div class="pd-form-header">
-      <span class="pd-form-title">${p ? '// EDIT SUBJECT' : '// NEW SUBJECT'}</span>
+      <span class="pd-form-title">${p ? 'Edit Subject' : 'New Subject'}</span>
       <button class="pers-btn" onclick="cancelForm()">✕ Cancel</button>
     </div>
 
@@ -520,6 +527,14 @@ function showSubjectInSidebar(p) {
     tagsWrap.innerHTML = (p.tags||[]).map(t => `<span class="rp-tag">${t}</span>`).join('');
     tagsWrap.style.display = (p.tags||[]).length ? '' : 'none';
   }
+  const viewBtn = document.getElementById('rp-sub-view');
+  if (viewBtn) viewBtn.onclick = () => {
+    persState.selected = p;
+    renderPersDetail();
+    document.querySelectorAll('.fab-tab').forEach(t => t.classList.remove('active'));
+    const persTab = document.querySelector('.fab-tab[data-panel="panel-personnel"]');
+    if (persTab) persTab.click();
+  };
 }
 
 // ─── IN-APP CONFIRM DIALOG ────────────────────────────────────────────────────
