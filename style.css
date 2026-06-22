@@ -1,4 +1,7 @@
 /* OSINT GOTHAM — Catppuccin Mocha + Purple/Yellow tactical theme */
+
+/* Strip Leaflet's default white box from all custom SVG icons */
+.gicon { background: transparent !important; border: none !important; }
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400;500&display=swap');
 
 :root {

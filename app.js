@@ -58,11 +58,12 @@ let selectedFeature = null;
 let measurePoints = [], measureLayer = null;
 let pendingLatLng = null;
 let selectedStamp = STAMP_TYPES[0];
+let activeDrawHandler = null;
 
 // ─── SVG icons ───────────────────────────────────────────────────────────────
 function makeDiamond(color) {
   return L.divIcon({
-    className: '',
+    className: 'gicon',
     html: `<svg width="8" height="8" viewBox="0 0 8 8"><rect x="0.5" y="0.5" width="7" height="7" transform="rotate(45 4 4)" fill="none" stroke="${color}" stroke-width="1"/></svg>`,
     iconSize: [8, 8],
     iconAnchor: [4, 4]
@@ -70,7 +71,7 @@ function makeDiamond(color) {
 }
 function makeSquare(color, fill = 'none') {
   return L.divIcon({
-    className: '',
+    className: 'gicon',
     html: `<svg width="10" height="10" viewBox="0 0 10 10"><rect x="0.5" y="0.5" width="9" height="9" fill="${fill}" fill-opacity="0.3" stroke="${color}" stroke-width="1"/></svg>`,
     iconSize: [10, 10],
     iconAnchor: [5, 5]
@@ -78,15 +79,15 @@ function makeSquare(color, fill = 'none') {
 }
 function makeCircleIcon(color) {
   return L.divIcon({
-    className: '',
-    html: `<svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="none" stroke="${color}" stroke-width="1"/><circle cx="5" cy="5" r="1" fill="${color}"/></svg>`,
-    iconSize: [10, 10],
-    iconAnchor: [5, 5]
+    className: 'gicon',
+    html: `<svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="${color}" fill-opacity="0.18" stroke="${color}" stroke-width="1.2"/><circle cx="6" cy="6" r="2" fill="${color}"/></svg>`,
+    iconSize: [12, 12],
+    iconAnchor: [6, 6]
   });
 }
 function makeStampIcon(stamp) {
   return L.divIcon({
-    className: '',
+    className: 'gicon',
     html: `<svg width="14" height="14" viewBox="0 0 14 14">
       <rect x="0.5" y="0.5" width="13" height="13" fill="none" stroke="${stamp.color}" stroke-width="1"/>
       <line x1="0" y1="0" x2="14" y2="14" stroke="${stamp.color}" stroke-width="0.5" opacity="0.4"/>
@@ -243,6 +244,7 @@ function loadUserData() {
   const saved = localStorage.getItem('gotham_markers');
   if (!saved) return;
   JSON.parse(saved).forEach(d => addUserMarker(d, false));
+  renderBottomMarkers();
   log('SYS', `Loaded ${userMarkers.length} saved markers`);
 }
 
@@ -362,19 +364,29 @@ function onDrawDeleted(e) {
   log('DEL', `${e.layers.getLayers().length} shape(s) removed`);
 }
 
+function stopActiveDraw() {
+  if (activeDrawHandler) {
+    try { activeDrawHandler.disable(); } catch(e) {}
+    activeDrawHandler = null;
+  }
+}
+
 function startDraw(type) {
+  stopActiveDraw();
   setTool(type);
   const drawMap = {
-    'draw-line': new L.Draw.Polyline(map, { shapeOptions: { color: '#cba6f7', weight: 1.5 } }),
-    'draw-circle': new L.Draw.Circle(map, { shapeOptions: { color: '#89b4fa', weight: 1.5, fillColor: '#89b4fa', fillOpacity: 0.05 } }),
-    'draw-rect': new L.Draw.Rectangle(map, { shapeOptions: { color: '#f9e2af', weight: 1.5, fillColor: '#f9e2af', fillOpacity: 0.08 } }),
-    'draw-polygon': new L.Draw.Polygon(map, { shapeOptions: { color: '#cba6f7', weight: 1.5, fillColor: '#cba6f7', fillOpacity: 0.08 } })
+    'draw-line':    new L.Draw.Polyline(map,   { shapeOptions: { color: '#cba6f7', weight: 1.5 } }),
+    'draw-circle':  new L.Draw.Circle(map,     { shapeOptions: { color: '#89b4fa', weight: 1.5, fillColor: '#89b4fa', fillOpacity: 0.05 } }),
+    'draw-rect':    new L.Draw.Rectangle(map,  { shapeOptions: { color: '#f9e2af', weight: 1.5, fillColor: '#f9e2af', fillOpacity: 0.08 } }),
+    'draw-polygon': new L.Draw.Polygon(map,    { shapeOptions: { color: '#cba6f7', weight: 1.5, fillColor: '#cba6f7', fillOpacity: 0.08 } })
   };
-  if (drawMap[type]) drawMap[type].enable();
+  activeDrawHandler = drawMap[type] || null;
+  if (activeDrawHandler) activeDrawHandler.enable();
 }
 
 // ─── TOOLS ───────────────────────────────────────────────────────────────────
 function setTool(tool) {
+  if (!tool) stopActiveDraw();
   activeTool = tool;
   measurePoints = [];
   document.getElementById('measure-tip').style.display = 'none';
