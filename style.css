@@ -668,10 +668,11 @@ body {
   gap: 6px;
 }
 .exploit-warn-body {
-  font-size: 8.5px;
+  font-size: 10px;
   color: var(--subtext);
   line-height: 1.7;
   font-family: 'Inter', system-ui, sans-serif;
+  font-weight: 400;
 }
 .exploit-warn-footer {
   font-size: 7px;
@@ -704,6 +705,7 @@ body {
   font-size: 11px;
   letter-spacing: 0.05em;
 }
+.exploit-key-input::placeholder { font-size: 8px; }
 .exploit-launch-btn {
   background: var(--red);
   border-color: var(--red);
