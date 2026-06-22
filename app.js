@@ -658,24 +658,41 @@ const _FSH = 'e9bee357e287b6cb438419ca4d3ed54bad20d68d3655b01281e990d9df469abe';
 
 function openExploitModal() {
   document.getElementById('modal-exploit').classList.add('open');
-  setTimeout(() => document.getElementById('exploit-id').focus(), 80);
+  setTimeout(() => {
+    const digits = document.querySelectorAll('.exploit-digit');
+    digits.forEach((d, i) => {
+      d.value = '';
+      d.oninput = () => {
+        d.value = d.value.replace(/\D/g, '').slice(0, 1);
+        if (d.value && digits[i + 1]) digits[i + 1].focus();
+      };
+      d.onkeydown = e => {
+        if (e.key === 'Backspace' && !d.value && digits[i - 1]) digits[i - 1].focus();
+        if (e.key === 'Enter') launchExploit();
+      };
+    });
+    digits[0].focus();
+  }, 80);
 }
 function closeExploitModal() {
   document.getElementById('modal-exploit').classList.remove('open');
-  document.getElementById('exploit-id').value  = '';
-  document.getElementById('exploit-key').value  = '';
+  document.querySelectorAll('.exploit-digit').forEach(d => d.value = '');
+  document.getElementById('exploit-key').value = '';
 }
 function _shake(el) {
   el.classList.add('input-err');
   setTimeout(() => el.classList.remove('input-err'), 600);
 }
 async function launchExploit() {
-  const idEl  = document.getElementById('exploit-id');
-  const keyEl = document.getElementById('exploit-key');
-  const id    = idEl.value.trim();
-  const key   = keyEl.value;
+  const digitEls = document.querySelectorAll('.exploit-digit');
+  const keyEl    = document.getElementById('exploit-key');
+  const id       = Array.from(digitEls).map(d => d.value).join('');
+  const key      = keyEl.value;
 
-  if (id.length !== 6 || !/^\d{6}$/.test(id)) { _shake(idEl); return; }
+  if (id.length !== 6 || !/^\d{6}$/.test(id)) {
+    const row = document.getElementById('exploit-digit-row');
+    _shake(row); return;
+  }
 
   const encoded = new TextEncoder().encode(key);
   const buf     = await crypto.subtle.digest('SHA-256', encoded);
