@@ -202,25 +202,21 @@ async function renderPersDetail() {
     </div>`;
   }).join('') || '<div class="pers-empty-note">No log entries</div>';
 
-  panel.innerHTML = `
-  <div class="pd-inner">
+  const subtitle = [
+    p.groupId   ? `Class: ${p.groupId}` : '',
+    p.citizenId ? `ID: ${p.citizenId}`  : ''
+  ].filter(Boolean).join(' | ');
 
-    <!-- Profile header -->
-    <div class="pd-header">
-      <div class="pd-photo-wrap">
-        ${p.photo
-          ? `<img src="${p.photo}" class="pd-photo" onclick="viewImg('${p.photo}')" />`
-          : `<div class="pd-photo pd-photo-empty"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="16" cy="11" r="6"/><path d="M4 30 c0-7 24-7 24 0"/></svg></div>`}
-      </div>
-      <div class="pd-title-block">
-        <div class="pd-fullname">${p.fullName || '—'}</div>
-        <div class="pd-sub">${[p.nickName, p.callsign ? '['+p.callsign+']' : ''].filter(Boolean).join(' · ')}</div>
-        <div class="pd-badges">
-          ${p.groupId   ? `<span class="pers-tag">GRP: ${p.groupId}</span>` : ''}
-          ${p.mbti      ? `<span class="pers-tag">${p.mbti}</span>` : ''}
-          ${p.citizenId ? `<span class="pers-tag">ID: ${p.citizenId}</span>` : ''}
-          ${(p.tags||[]).map(t => `<span class="pers-tag pers-tag-custom">${t}</span>`).join('')}
-        </div>
+  const tagLine = (p.tags||[]).join(', ') || '—';
+
+  panel.innerHTML = `
+  <div class="pd-dossier">
+
+    <!-- Dossier header: name + actions -->
+    <div class="pd-dos-hd">
+      <div class="pd-dos-hd-text">
+        <div class="pd-dos-title">${p.fullName || '—'}${p.nickName ? ` <span class="pd-dos-nick">"${p.nickName}"</span>` : ''}</div>
+        ${subtitle ? `<div class="pd-dos-sub">${subtitle}</div>` : ''}
       </div>
       <div class="pd-actions">
         <button class="pers-btn pers-btn-fill" onclick="showEditForm(${p.id})">Edit</button>
@@ -228,40 +224,38 @@ async function renderPersDetail() {
       </div>
     </div>
 
-    <!-- Identity -->
-    <div class="pd-section">
-      <div class="pd-section-title">IDENTITY</div>
-      <div class="pd-grid">
-        ${pdRow('FULL NAME', p.fullName)}
-        ${pdRow('NICKNAME', p.nickName)}
-        ${pdRow('CALLSIGN', p.callsign)}
-        ${pdRow('DATE OF BIRTH', p.birthDate)}
-        ${pdRow('MBTI', p.mbti)}
-        ${pdRow('CITIZEN ID', p.citizenId)}
-        ${pdRow('GROUP ID', p.groupId)}
+    <!-- Photo + info grid -->
+    <div class="pd-dos-profile">
+      <div class="pd-dos-photo-col">
+        ${p.photo
+          ? `<img src="${p.photo}" class="pd-dos-photo" onclick="viewImg('${p.photo}')" />`
+          : `<div class="pd-dos-photo pd-dos-photo-empty"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="1"><circle cx="18" cy="12" r="7"/><path d="M4 34 c0-9 28-9 28 0"/></svg></div>`}
+      </div>
+      <div class="pd-dos-grid">
+        <div class="pd-dos-cell"><div class="pd-dos-lbl">Callsign</div><div class="pd-dos-val">${p.callsign||'—'}</div></div>
+        <div class="pd-dos-cell"><div class="pd-dos-lbl">Birth Date</div><div class="pd-dos-val">${p.birthDate||'—'}</div></div>
+        <div class="pd-dos-cell"><div class="pd-dos-lbl">MBTI</div><div class="pd-dos-val">${p.mbti||'—'}</div></div>
+        <div class="pd-dos-cell"><div class="pd-dos-lbl">Group</div><div class="pd-dos-val">${p.groupId||'—'}</div></div>
+        <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Address</div><div class="pd-dos-val">${p.address||'—'}</div></div>
+        <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Contact</div><div class="pd-dos-val">${p.phone||'—'}</div></div>
+        <div class="pd-dos-cell"><div class="pd-dos-lbl">Citizen ID</div><div class="pd-dos-val">${p.citizenId||'—'}</div></div>
+        <div class="pd-dos-cell"><div class="pd-dos-lbl">Email</div><div class="pd-dos-val" style="font-size:9px">${p.email||'—'}</div></div>
+        <div class="pd-dos-cell pd-dos-span2"><div class="pd-dos-lbl">Specialties / Tags</div><div class="pd-dos-val">${tagLine}</div></div>
       </div>
     </div>
 
-    <!-- Contact -->
-    <div class="pd-section">
-      <div class="pd-section-title">CONTACT</div>
-      <div class="pd-grid">
-        ${pdRow('PHONE', p.phone)}
-        ${pdRow('EMAIL', p.email)}
-        ${pdRow('ADDRESS', p.address)}
-      </div>
-    </div>
-
-    ${smRows ? `<div class="pd-section">
-      <div class="pd-section-title">SOCIAL MEDIA</div>
+    ${smRows ? `
+    <!-- Social media -->
+    <div class="pd-dos-sm">
+      <div class="pd-dos-sm-hd">SOCIAL MEDIA</div>
       <div class="pd-grid">${smRows}</div>
     </div>` : ''}
 
     <!-- Related images -->
-    <div class="pd-section">
-      <div class="pd-section-title">
+    <div class="pd-dos-section">
+      <div class="pd-dos-section-hd">
         RELATED IMAGES
-        <label class="pers-attach-btn">+ Add
+        <label class="pers-attach-btn" style="margin-left:6px">+ Add
           <input type="file" accept="image/*" multiple style="display:none" onchange="addRelatedPics(event,${p.id})">
         </label>
       </div>
@@ -271,8 +265,8 @@ async function renderPersDetail() {
     </div>
 
     <!-- OSINT Feed -->
-    <div class="pd-section">
-      <div class="pd-section-title">OSINT FEED</div>
+    <div class="pd-dos-section">
+      <div class="pd-dos-section-hd">OSINT FEED</div>
       <div class="pers-log-composer">
         <select id="log-type-sel" class="pers-sel">
           ${['NOTE','SIGHTING','CONFIRMED','SUSPECTED','ASSOCIATE','LOCATION','COMMS','ACTIVITY','SIGINT','ELINT']
