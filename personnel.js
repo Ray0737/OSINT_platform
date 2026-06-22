@@ -80,6 +80,31 @@ let persState = {
   selected: null,
   pendingLogPics: []
 };
+let formTags = [];
+
+// ─── TAG HELPERS ──────────────────────────────────────────────────────────────
+function addFormTag() {
+  const input = document.getElementById('tag-input');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val || formTags.includes(val)) { input.value = ''; return; }
+  formTags.push(val);
+  input.value = '';
+  renderFormTags();
+}
+
+function removeFormTag(tag) {
+  formTags = formTags.filter(t => t !== tag);
+  renderFormTags();
+}
+
+function renderFormTags() {
+  const wrap = document.getElementById('form-tags-list');
+  if (!wrap) return;
+  wrap.innerHTML = formTags.map(t =>
+    `<span class="pers-tag-pill">${t}<button onclick="removeFormTag('${t.replace(/'/g, "\\'")}')">×</button></span>`
+  ).join('');
+}
 
 // ─── OPEN / CLOSE ─────────────────────────────────────────────────────────────
 async function openPersModal() {
@@ -194,6 +219,7 @@ async function renderPersDetail() {
           ${p.groupId   ? `<span class="pers-tag">GRP: ${p.groupId}</span>` : ''}
           ${p.mbti      ? `<span class="pers-tag">${p.mbti}</span>` : ''}
           ${p.citizenId ? `<span class="pers-tag">ID: ${p.citizenId}</span>` : ''}
+          ${(p.tags||[]).map(t => `<span class="pers-tag pers-tag-custom">${t}</span>`).join('')}
         </div>
       </div>
       <div class="pd-actions">
@@ -287,6 +313,7 @@ async function showEditForm(id) {
 function renderPersForm(p) {
   const panel = document.getElementById('pers-detail');
   const sm = p?.socialMedia || {};
+  formTags = [...(p?.tags || [])];
   const mbtiOpts = ['','INTJ','INTP','ENTJ','ENTP','INFJ','INFP','ENFJ','ENFP',
                        'ISTJ','ISFJ','ESTJ','ESFJ','ISTP','ISFP','ESTP','ESFP'];
 
@@ -360,12 +387,24 @@ function renderPersForm(p) {
       </div>
     </div>
 
+    <!-- Tags -->
+    <div class="pf-section">
+      <div class="pf-section-hd">// TAGS</div>
+      <div class="pf-tag-row">
+        <input type="text" id="tag-input" class="pers-input" placeholder="Add tag..."
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addFormTag()}">
+        <button class="pf-tag-add-btn" onclick="addFormTag()">+</button>
+      </div>
+      <div class="pf-tags-wrap" id="form-tags-list"></div>
+    </div>
+
     <!-- Save -->
     <div class="pf-save-row">
       <button class="pf-save-btn" onclick="savePerson(${p?.id ?? 'null'})">Save record</button>
     </div>
 
   </div>`;
+  renderFormTags();
 }
 
 function fld(label, name, value, type) {
@@ -402,6 +441,8 @@ async function savePerson(existingId) {
     const ex = await PERSDB.get('personnel', existingId);
     data.photo = ex?.photo || null;
   }
+
+  data.tags = [...formTags];
 
   if (existingId) {
     const ex = await PERSDB.get('personnel', existingId);
@@ -480,6 +521,11 @@ function showSubjectInSidebar(p) {
   document.getElementById('rp-sub-group').textContent    = p.groupId   || '—';
   document.getElementById('rp-sub-mbti').textContent     = p.mbti      || '—';
   document.getElementById('rp-sub-dob').textContent      = p.birthDate || '—';
+  const tagsWrap = document.getElementById('rp-sub-tags');
+  if (tagsWrap) {
+    tagsWrap.innerHTML = (p.tags||[]).map(t => `<span class="rp-tag">${t}</span>`).join('');
+    tagsWrap.style.display = (p.tags||[]).length ? '' : 'none';
+  }
 }
 
 // ─── IN-APP CONFIRM DIALOG ────────────────────────────────────────────────────

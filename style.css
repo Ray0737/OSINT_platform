@@ -689,11 +689,86 @@ body {
   border: 1px solid var(--border);
   cursor: pointer;
   font-size: 9px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-align: center;
+  color: var(--subtext);
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
 }
-.stamp-opt:hover { border-color: var(--purple); }
-.stamp-opt.selected { background: rgba(203,166,247,0.1); border-color: var(--purple); }
+.stamp-opt:hover { border-color: var(--purple); color: var(--text); }
+.stamp-opt.selected {
+  background: rgba(203,166,247,0.12);
+  border-color: var(--purple);
+  color: var(--purple);
+}
+
+/* ── Personnel tags ── */
+.pf-tag-row {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin-bottom: 5px;
+}
+.pf-tag-row .pers-input { flex: 1; }
+.pf-tag-add-btn {
+  background: var(--surface1);
+  border: 1px solid var(--border);
+  color: var(--subtext);
+  font-size: 13px;
+  line-height: 1;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+  flex-shrink: 0;
+}
+.pf-tag-add-btn:hover { color: var(--purple); border-color: var(--purple); }
+.pf-tags-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 4px;
+}
+.pers-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(137,220,235,0.08);
+  border: 1px solid rgba(137,220,235,0.25);
+  color: var(--cyan);
+  font-size: 8px;
+  padding: 2px 6px;
+  font-family: 'Inter', system-ui, sans-serif;
+  letter-spacing: 0.04em;
+}
+.pers-tag-pill button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 10px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.6;
+}
+.pers-tag-pill button:hover { opacity: 1; }
+.pers-tag-custom {
+  border-color: rgba(137,220,235,0.25);
+  color: var(--cyan);
+  background: rgba(137,220,235,0.07);
+}
+.rp-tags-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 4px;
+}
+.rp-tag {
+  font-size: 7.5px;
+  padding: 1px 5px;
+  border: 1px solid rgba(137,220,235,0.25);
+  color: var(--cyan);
+  font-family: 'Inter', system-ui, sans-serif;
+}
 
 /* measure tooltip */
 #measure-tip {

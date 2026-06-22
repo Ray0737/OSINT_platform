@@ -649,16 +649,10 @@ window.addEventListener('DOMContentLoaded', () => {
     const el = document.createElement('div');
     el.className = 'stamp-opt' + (st.id === selectedStamp.id ? ' selected' : '');
     el.textContent = st.label;
-    el.style.color = st.color;
-    el.style.borderColor = st.id === selectedStamp.id ? st.color : '';
     el.addEventListener('click', () => {
       selectedStamp = st;
-      document.querySelectorAll('.stamp-opt').forEach(s => {
-        s.classList.remove('selected');
-        s.style.borderColor = '';
-      });
+      document.querySelectorAll('.stamp-opt').forEach(s => s.classList.remove('selected'));
       el.classList.add('selected');
-      el.style.borderColor = st.color;
     });
     grid.appendChild(el);
   });
